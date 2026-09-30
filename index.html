@@ -1,0 +1,906 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tsingtao — Từ Thanh Đảo, Chuẩn Vị Từ 1903</title>
+<meta name="description" content="Bia nấu theo công thức Tsingtao truyền thống, chọn lọc hoa hồng và thị trấu tinh khoét. Tươi mát tự nhiên, trong vắt, dịu nhẹ trong mỗi ngụm." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: { fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] } } }
+  }
+</script>
+<style>
+  html, body { height: 100%; }
+  body {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  :lang(vi) h1 { line-height: 1.18; letter-spacing: -0.015em; }
+  :lang(vi) p  { line-height: 1.7; }
+
+  /* ================= NỀN VIDEO =================
+     Video gốc có đầu người ở ~53.7%–88% chiều ngang; chỉ hiện 50%
+     bên trái (vùng nước mở) nên đầu người bị cắt hẳn khỏi khung hình. */
+  .video-crop {
+    position: fixed; inset: 0; overflow: hidden;
+    z-index: -2; pointer-events: none;
+  }
+  .hero-video {
+    position: absolute; top: 50%; left: 0;
+    transform: translateY(-50%);
+    width: max(200vw, 177.78vh);
+    height: auto; max-width: none;
+    pointer-events: none;
+  }
+  .hero-scrim {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      linear-gradient(90deg, rgba(0,0,0,0.90) 0%, rgba(0,0,0,0.74) 34%,
+                      rgba(0,0,0,0.30) 58%, rgba(0,0,0,0.10) 78%, rgba(0,0,0,0.26) 100%),
+      linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.14) 32%,
+                      rgba(0,0,0,0.16) 70%, rgba(0,0,0,0.62) 100%);
+  }
+
+  /* ================= HIỆN DẦN ================= */
+  .reveal {
+    opacity: 0; transform: translateY(22px);
+    transition: opacity 700ms cubic-bezier(0.22,1,0.36,1), transform 700ms cubic-bezier(0.22,1,0.36,1);
+    will-change: opacity, transform;
+  }
+  .reveal.is-visible { opacity: 1; transform: translateY(0); }
+  .word {
+    display: inline-block; opacity: 0; transform: translateY(26px);
+    transition: opacity 680ms cubic-bezier(0.22,1,0.36,1), transform 680ms cubic-bezier(0.22,1,0.36,1);
+    will-change: opacity, transform;
+  }
+  .word.is-visible { opacity: 1; transform: translateY(0); }
+
+  /* ================= NÚT / MENU ================= */
+  .btn-primary { transition: transform 220ms ease, box-shadow 220ms ease; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 30px -10px rgba(255,255,255,0.45); }
+  .btn-primary:hover .cta-arrow { transform: translateX(3px); }
+  .cta-arrow { transition: transform 220ms ease; }
+  .btn-ghost { transition: transform 220ms ease, background-color 220ms ease, border-color 220ms ease; }
+  .btn-ghost:hover { transform: translateY(-2px); background-color: rgba(255,255,255,0.10); }
+  .nav-link { position: relative; }
+  .nav-link::after {
+    content: ''; position: absolute; left: 0; bottom: -6px;
+    height: 1px; width: 100%; background: #fff;
+    transform: scaleX(0); transform-origin: right;
+    transition: transform 280ms cubic-bezier(0.22,1,0.36,1);
+  }
+  .nav-link:hover::after { transform: scaleX(1); transform-origin: left; }
+
+  .lang-switch {
+    display: inline-flex; align-items: center; gap: 2px; padding: 3px;
+    border-radius: 9999px; border: 1px solid rgba(255,255,255,0.22);
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  }
+  .lang-btn {
+    font-size: 12px; font-weight: 500; letter-spacing: 0.06em; line-height: 1;
+    padding: 7px 12px; border-radius: 9999px;
+    color: rgba(255,255,255,0.72); background: transparent; border: 0; cursor: pointer;
+    transition: color 200ms ease, background-color 200ms ease;
+  }
+  .lang-btn:hover { color: #fff; }
+  .lang-btn[aria-pressed="true"] { background: #fff; color: #000; }
+  .lang-btn:focus-visible { outline: 2px solid #c25e2e; outline-offset: 2px; }
+
+  /* =========================================================
+     SẢN PHẨM TRÔI TRONG BỂ NƯỚC
+     Vùng sản phẩm bắt đầu sau cột chữ (700px tính từ mép section)
+     nên không bao giờ chồng lên tiêu đề ở mọi độ rộng màn hình.
+     Toạ độ % bên trong tính theo vùng này -> bố cục ổn định.
+     ========================================================= */
+  .products {
+    position: absolute;
+    left: 720px;          /* luôn nằm sau cột chữ rộng 640px + padding */
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 5;
+    pointer-events: none;   /* không chặn thao tác với chữ bên dưới */
+  }
+
+  /* =========================================================
+     LỚP 3D — khối ảnh xoay trong không gian để có cảm giác 3D.
+     Xoay GIỚI HẠN trong ±18° để nhãn hiệu luôn nằm đúng mặt,
+     không bị mờ hay khuyết khi nghiêng. Ảnh gốc chỉ có một góc
+     chính diện nên không thể xoay 360° thật mà vẫn giữ nhãn.
+     ========================================================= */
+  .product-btn { perspective: 900px; }
+
+  .p3d {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    animation: turn3d var(--turn, 15s) ease-in-out infinite;
+    will-change: transform;
+  }
+  .p3d > img {
+    display: block;
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 16px 28px rgba(0, 18, 24, 0.55));
+    transition: filter 320ms ease;
+  }
+
+  /* Ánh loé trượt trên mặt sản phẩm. Dùng mask theo chính ảnh sản
+     phẩm nên không bao giờ thành hình chữ nhật bao quanh chai. */
+  .shine {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(108deg,
+      rgba(255,255,255,0) 34%,
+      rgba(255,255,255,0.40) 46%,
+      rgba(255,255,255,0.08) 54%,
+      rgba(255,255,255,0) 66%);
+    mix-blend-mode: soft-light;
+    -webkit-mask: var(--mask) center / contain no-repeat;
+    mask: var(--mask) center / contain no-repeat;
+    animation: shine-sweep var(--shine, 7s) linear infinite;
+  }
+
+  /* Tố hai mép để ảnh phẳng bớt "phẳng" như có thể tích */
+  .shade {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(90deg,
+      rgba(0, 26, 34, 0.50) 0%,
+      rgba(0, 26, 34, 0.10) 14%,
+      rgba(0,0,0,0) 34%,
+      rgba(0,0,0,0) 66%,
+      rgba(0, 26, 34, 0.10) 86%,
+      rgba(0, 26, 34, 0.50) 100%);
+    -webkit-mask: var(--mask) center / contain no-repeat;
+    mask: var(--mask) center / contain no-repeat;
+  }
+
+  @keyframes turn3d {
+    0%   { transform: rotateY(-18deg) rotateX(4deg); }
+    50%  { transform: rotateY(18deg) rotateX(-4deg); }
+    100% { transform: rotateY(-18deg) rotateX(4deg); }
+  }
+  @keyframes shine-sweep {
+    0%   { transform: translateX(-45%); opacity: 0; }
+    35%  { opacity: 1; }
+    100% { transform: translateX(45%); opacity: 0; }
+  }
+
+  /* Rê chuột: dừng xoay, nghiêng thêm + phát sáng */
+  .product-btn:hover .p3d,
+  .product-btn:focus-visible .p3d {
+    animation-play-state: paused;
+    transform: rotateY(-26deg) rotateX(6deg) scale(1.06);
+  }
+  .product-btn:hover .p3d > img,
+  .product-btn:focus-visible .p3d > img {
+    filter: drop-shadow(0 0 26px rgba(0, 210, 180, 0.5)) drop-shadow(0 16px 28px rgba(0, 18, 24, 0.5));
+  }
+  .product-btn:focus-visible { outline: none; }
+
+  .product-btn {
+    position: absolute;
+    display: block;
+    padding: 0;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    pointer-events: auto;
+    /* kích thước theo % chiều cao vùng sản phẩm -> luôn vừa màn hình.
+       aspect-ratio lấy đúng tỉ lệ gốc của ảnh nên khung ôm sát hình sản
+       phẩm: không bị kéo méo, lớp ánh sáng và nhãn bám đúng tâm. */
+    height: var(--h);
+    width: auto;
+    aspect-ratio: var(--ar, 0.3);
+    transform: translate(-50%, -50%);
+    animation: float-sway var(--dur, 8s) ease-in-out infinite;
+    animation-delay: var(--delay, 0s);
+    will-change: transform;
+  }
+
+  /* Nhãn nhỏ hiện khi rê chuột */
+  .product-btn .tag {
+    position: absolute;
+    left: 50%;
+    bottom: -6px;
+    transform: translateX(-50%) translateY(4px);
+    padding: 5px 11px;
+    border-radius: 9999px;
+    background: rgba(0, 0, 0, 0.62);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #fff;
+    font-size: 11px;
+    line-height: 1;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 220ms ease, transform 220ms ease;
+  }
+  .product-btn:hover .tag,
+  .product-btn:focus-visible .tag { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Ánh sáng xanh nhạt phía sau cụm sản phẩm */
+  .products::before {
+    content: '';
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: 78%; height: 82%;
+    background: radial-gradient(ellipse at center, rgba(0, 200, 170, 0.22) 0%, rgba(0, 140, 130, 0.07) 46%, rgba(0,0,0,0) 70%);
+    filter: blur(30px);
+  }
+
+  /* Lắc lư trong nước — mỗi sản phẩm lệch pha nhờ --dur / --delay */
+  @keyframes float-sway {
+    0%   { transform: translate(-50%, -50%) translate3d(0, 0, 0) rotate(0deg); }
+    25%  { transform: translate(-50%, -50%) translate3d(5px, -14px, 0) rotate(2deg); }
+    50%  { transform: translate(-50%, -50%) translate3d(-6px, -23px, 0) rotate(-2.2deg); }
+    75%  { transform: translate(-50%, -50%) translate3d(-4px, -9px, 0) rotate(-1.1deg); }
+    100% { transform: translate(-50%, -50%) translate3d(0, 0, 0) rotate(0deg); }
+  }
+
+  /* ================= POPUP CHI TIẾT SẢN PHẨM ================= */
+  .modal-backdrop {
+    position: fixed; inset: 0; z-index: 60;
+    display: flex; align-items: center; justify-content: center;
+    padding: 1.25rem;
+    background: rgba(2, 12, 16, 0.72);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 260ms ease, visibility 260ms;
+  }
+  .modal-backdrop.is-open { opacity: 1; visibility: visible; }
+
+  .modal-card {
+    position: relative;
+    width: 100%;
+    max-width: 780px;
+    max-height: 88vh;
+    overflow-y: auto;
+    transform: translateY(18px) scale(0.97);
+    opacity: 0;
+    transition: transform 300ms cubic-bezier(0.22,1,0.36,1), opacity 300ms ease;
+  }
+  .modal-backdrop.is-open .modal-card { transform: translateY(0) scale(1); opacity: 1; }
+
+  .modal-close {
+    position: absolute;
+    top: 0.9rem; right: 0.9rem;
+    z-index: 2;
+    width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 200ms ease, transform 200ms ease;
+  }
+  .modal-close:hover { background: rgba(255, 255, 255, 0.24); transform: rotate(90deg); }
+  .modal-close:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal, .word { transition-duration: 1ms !important; }
+    .product-btn { animation: none !important; }
+  }
+
+  /* ---- Dưới 1280px: sản phẩm về dạng lưới dưới khối chữ.
+         Ô có CHIỀU CAO CỐ ĐỊNH và ảnh được canh giữa (object-fit: contain).
+         Nếu để chiều cao tự sinh theo bề rộng cột thì chai (tỉ lệ ~0.27)
+         sẽ cao hơn 500px và trang dài ra hơn 3000px. ---- */
+  @media (max-width: 1279px) {
+    .products {
+      position: static;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 2.75rem 0.6rem;
+      align-items: start;
+      margin-top: 2.5rem;
+      padding: 0;
+      pointer-events: auto;
+    }
+    .products::before { display: none; }
+
+    .product-btn {
+      position: static;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      width: 100%;
+      height: auto;
+      aspect-ratio: auto;   /* trong lưới: chiều cao do ô quyết định */
+      transform: none;
+      animation: float-sway-sm var(--dur, 8s) ease-in-out infinite;
+      animation-delay: var(--delay, 0s);
+    }
+    .p3d {
+      width: 100%;
+      height: clamp(110px, 42vw, 200px);
+    }
+    .p3d > img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;   /* ảnh luôn vừa ô, không méo, không khuyết */
+    }
+    /* tên sản phẩm thành chú thích thường dưới mỗi ảnh */
+    .product-btn .tag {
+      position: static;
+      opacity: 1;
+      transform: none;
+      left: auto; bottom: auto; top: auto;
+      max-width: 100%;
+      width: 100%;
+      white-space: normal;
+      line-height: 1.3;
+      font-size: 12px;
+      padding: 5px 6px;
+      text-align: center;
+      /* cắt bằng dấu ... nếu tên quá dài, không tràn ra ngoài cột */
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow-wrap: anywhere;
+    }
+    @keyframes float-sway-sm {
+      0%,100% { transform: translateY(0) rotate(0deg); }
+      50%     { transform: translateY(-8px) rotate(1.4deg); }
+    }
+  }
+  /* Màn hẹp: 2 cột cho dễ bấm */
+  @media (max-width: 480px) {
+    .products { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  /* Màn rộng hơn: ô cao hơn một chút */
+  @media (min-width: 560px) and (max-width: 1279px) {
+    .p3d { height: clamp(150px, 26vw, 230px); }
+  }
+  /* Điện thoại nằm ngang: nhiều cột để trang bớt dài */
+  @media (orientation: landscape) and (max-height: 560px) {
+    .products { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2.5rem 0.5rem; }
+    .p3d { height: clamp(90px, 20vw, 150px); }
+  }
+
+  /* ---- Vùng bấm đủ lớn khi dùng tay (không ảnh hưởng giao diện desktop) ---- */
+  @media (pointer: coarse) {
+    .lang-btn {
+      min-height: 44px;
+      min-width: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+    }
+    .brand { padding: 8px 0; }          /* vùng bấm logo >= 44px */
+    .modal-close { width: 44px; height: 44px; }
+    .nav-link { padding: 10px 0; }
+  }
+</style>
+</head>
+
+<body class="bg-black text-white antialiased">
+
+  <!-- ================= NỀN ================= -->
+  <div class="video-crop" aria-hidden="true">
+    <video class="hero-video" autoplay loop muted playsinline preload="auto" tabindex="-1">
+      <!-- Bản nhẹ 720p cho mobile, 1080p cho màn hình lớn.
+           Đều nén lại từ file gốc 4K (14 MB) nên tải nhanh hơn nhiều. -->
+      <source src="assets/hero-aquarium-720p.mp4" type="video/mp4" media="(max-width: 1279px)" />
+      <source src="assets/hero-aquarium-1080p.mp4" type="video/mp4" />
+    </video>
+  </div>
+  <div class="hero-scrim" aria-hidden="true"></div>
+
+  <!-- ================= HEADER ================= -->
+  <header class="absolute inset-x-0 top-0 z-20">
+    <div class="mx-auto flex max-w-[1400px] items-center justify-between gap-6 px-6 py-7 sm:px-10 lg:px-16">
+      <a href="#" class="brand reveal shrink-0 text-2xl font-medium text-white tracking-tight">Tsingtao</a>
+
+      <nav class="hidden items-center gap-7 lg:flex xl:gap-10">
+        <a href="#beers"     class="nav-link reveal whitespace-nowrap text-[15px] font-normal text-white" data-i18n="nav1"></a>
+        <a href="#zero"      class="nav-link reveal whitespace-nowrap text-[15px] font-normal text-white" data-i18n="nav2"></a>
+        <a href="#story"     class="nav-link reveal whitespace-nowrap text-[15px] font-normal text-white" data-i18n="nav3"></a>
+        <a href="#stockists" class="nav-link reveal whitespace-nowrap text-[15px] font-normal text-white" data-i18n="nav4"></a>
+      </nav>
+
+      <div class="flex shrink-0 items-center gap-3">
+        <div class="lang-switch reveal" id="langSwitch" role="group" data-i18n-attr="aria-label:switcherLabel">
+          <button type="button" class="lang-btn" data-lang="vi" aria-pressed="true">VI</button>
+          <button type="button" class="lang-btn" data-lang="en" aria-pressed="false">EN</button>
+        </div>
+        <a href="#order" class="btn-primary reveal hidden whitespace-nowrap rounded-full bg-white px-6 py-2.5 text-[15px] font-medium text-black sm:inline-flex" data-i18n="order"></a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= HERO ================= -->
+  <main class="relative z-10 flex min-h-screen flex-col justify-center">
+    <section class="relative mx-auto flex min-h-screen w-full max-w-[1400px] flex-col justify-center px-6 pt-24 pb-14 sm:px-10 sm:pt-28 sm:pb-20 lg:px-16">
+      <div class="max-w-[620px] lg:max-w-[640px]">
+
+        <p class="reveal mb-5 text-[14px] font-normal text-white/90 sm:mb-6 sm:text-[15px]">
+          <span class="text-[#c25e2e]">|</span>&nbsp; <span data-i18n="label"></span>
+        </p>
+
+        <h1 class="text-white font-medium tracking-[-0.025em] leading-[1.06] text-[40px] sm:text-[52px] lg:text-[62px]">
+          <span class="block" data-line="1"></span>
+          <span class="block" data-line="2"></span>
+          <span class="block" data-line="3"></span>
+        </h1>
+
+        <p class="reveal mt-5 max-w-[560px] text-[15px] leading-relaxed text-white/75 sm:mt-6 sm:text-[17px]" data-i18n="sub"></p>
+
+        <div class="reveal mt-6 flex flex-wrap items-center gap-2.5 sm:mt-7 sm:gap-3">
+          <span class="flex items-center gap-2.5 sm:gap-3">
+            <span class="flex shrink-0 items-center gap-1" aria-hidden="true">
+              <svg class="h-[18px] w-[18px]" viewBox="0 0 20 20" fill="#c25e2e"><path d="M10 1.6l2.47 5.32 5.83.68-4.3 4.03 1.13 5.77L10 14.52 4.87 17.4l1.13-5.77-4.3-4.03 5.83-.68L10 1.6z"/></svg>
+              <svg class="h-[18px] w-[18px]" viewBox="0 0 20 20" fill="#c25e2e"><path d="M10 1.6l2.47 5.32 5.83.68-4.3 4.03 1.13 5.77L10 14.52 4.87 17.4l1.13-5.77-4.3-4.03 5.83-.68L10 1.6z"/></svg>
+              <svg class="h-[18px] w-[18px]" viewBox="0 0 20 20" fill="#c25e2e"><path d="M10 1.6l2.47 5.32 5.83.68-4.3 4.03 1.13 5.77L10 14.52 4.87 17.4l1.13-5.77-4.3-4.03 5.83-.68L10 1.6z"/></svg>
+              <svg class="h-[18px] w-[18px]" viewBox="0 0 20 20" fill="#c25e2e"><path d="M10 1.6l2.47 5.32 5.83.68-4.3 4.03 1.13 5.77L10 14.52 4.87 17.4l1.13-5.77-4.3-4.03 5.83-.68L10 1.6z"/></svg>
+              <svg class="h-[18px] w-[18px]" viewBox="0 0 20 20" fill="#c25e2e"><path d="M10 1.6l2.47 5.32 5.83.68-4.3 4.03 1.13 5.77L10 14.52 4.87 17.4l1.13-5.77-4.3-4.03 5.83-.68L10 1.6z"/></svg>
+            </span>
+            <span class="text-[14px] font-normal text-white sm:text-[15px]" data-i18n="proof"></span>
+          </span>
+        </div>
+
+        <div class="reveal mt-7 flex flex-row flex-wrap items-center gap-3 sm:mt-9 sm:gap-4">
+          <a href="#beers" class="btn-primary inline-flex items-center gap-3 rounded-full bg-white py-2 pl-7 pr-2 text-[15px] font-medium text-black">
+            <span class="whitespace-nowrap" data-i18n="cta1"></span>
+            <span class="cta-arrow flex h-8 w-8 items-center justify-center rounded-full bg-black">
+              <svg class="h-3.5 w-3.5 text-white" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2.5 8h11M9 3.5L13.5 8 9 12.5" />
+              </svg>
+            </span>
+          </a>
+          <a href="#zero" class="btn-ghost inline-flex items-center whitespace-nowrap rounded-full border border-white/25 bg-white/5 px-6 py-2 text-[15px] font-normal text-white backdrop-blur-sm" data-i18n="cta2"></a>
+        </div>
+      </div>
+
+      <!-- ============ 9 SẢN PHẨM TRÔI TRONG NƯỚC (sinh bằng JS) ============ -->
+      <div class="products" id="products"></div>
+    </section>
+  </main>
+
+  <!-- ================= POPUP CHI TIẾT ================= -->
+  <div class="modal-backdrop" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
+    <div class="modal-card rounded-3xl border border-white/12 bg-[#04191c]/92 shadow-2xl backdrop-blur-xl">
+      <button class="modal-close" id="modalClose" aria-label="Đóng" type="button">
+        <svg class="h-4 w-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M4 4l8 8M12 4l-8 8" />
+        </svg>
+      </button>
+
+      <div class="grid items-center gap-0 sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+        <!-- Ảnh sản phẩm -->
+        <div class="relative flex items-end justify-center overflow-hidden rounded-t-3xl bg-gradient-to-b from-[#0a2b30] to-[#04191c] px-6 pb-6 pt-10 sm:rounded-tr-none sm:rounded-l-3xl sm:pb-10 sm:pt-12">
+          <div class="pointer-events-none absolute left-1/2 top-1/2 h-[70%] w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#00c8a8]/25 blur-3xl"></div>
+          <img id="modalImg" src="" alt="" class="relative z-10 max-h-[46vh] w-auto object-contain drop-shadow-[0_18px_28px_rgba(0,0,0,0.6)]" />
+        </div>
+
+        <!-- Nội dung -->
+        <div class="px-6 pb-7 pt-6 sm:px-8 sm:py-9">
+          <p class="text-[11px] font-medium uppercase tracking-[0.18em] text-[#5fd8c0]" id="modalKicker"></p>
+          <h2 class="mt-2.5 text-[26px] font-medium leading-tight text-white sm:text-[30px]" id="modalTitle"></h2>
+          <p class="mt-1.5 text-[14px] font-normal text-white/55" id="modalSub"></p>
+
+          <div class="my-5 h-px w-full bg-white/10"></div>
+
+          <p class="text-[15px] leading-relaxed text-white/80" id="modalDesc"></p>
+
+          <ul class="mt-5 flex flex-wrap gap-2" id="modalSpecs"></ul>
+
+          <div class="mt-7 flex flex-wrap items-center gap-3">
+            <a href="#order" id="modalCta" class="btn-primary inline-flex items-center gap-2.5 rounded-full bg-white py-2 pl-6 pr-2 text-[14px] font-medium text-black">
+              <span data-i18n="modalCta"></span>
+              <span class="flex h-7 w-7 items-center justify-center rounded-full bg-black">
+                <svg class="h-3 w-3 text-white" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2.5 8h11M9 3.5L13.5 8 9 12.5" />
+                </svg>
+              </span>
+            </a>
+            <button type="button" id="modalNext" class="btn-ghost rounded-full border border-white/22 bg-white/5 px-5 py-2 text-[14px] font-normal text-white">
+              <span data-i18n="modalNext"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    'use strict';
+
+    /* =========================================================
+       SẢN PHẨM — mô tả ngắn gọn, 2 ngôn ngữ
+       pos: [x%, y%] trong khung nhìn | size: chiều cao (px cơ sở, desktop)
+       dur/delay: nhịp lắc để các sản phẩm lệch pha
+       ========================================================= */
+    var PRODUCTS = [
+      {
+        img: 'bia-500ml', pos: [30, 44], h: 38, dur: 7.4, delay: -0.6, turn: 14, shine: 6.4,
+        vi: { kicker: 'Bia Lager', name: 'Premium Lager 500ml', sub: 'Chai xanh kinh điển',
+              desc: 'Loại lager kinh điển của Tsingtao. Vị nhạt, sóng bia sắc và hậu vị sạch, nấu theo công thức gốc của nhà máy từ năm 1903.',
+              specs: ['500ml', '4.8% ABV', 'Lager'] },
+        en: { kicker: 'Beer · Lager', name: 'Premium Lager 500ml', sub: 'The classic green bottle',
+              desc: 'The classic Tsingtao lager. Light-bodied, crisp and clean, brewed to the original recipe first made in 1903.',
+              specs: ['500ml', '4.8% ABV', 'Lager'] }
+      },
+      {
+        img: 'bia-century', pos: [40, 78], h: 30, dur: 8.8, delay: -2.1, turn: 17, shine: 8.1,
+        vi: { kicker: 'Phiên Bản Đặc Biệt', name: '百年之旅 — Century Journey', sub: 'Chai nắp bật, nhãn khắc thủ công',
+              desc: 'Chai nắp bật với họa tiết khắc tay, ra mắt tại triển lãm bia châu Á ADBC 2020. Một hành trình trăm năm gói trong từng ngụm.',
+              specs: ['330ml', 'Swing-top', 'ADBC 2020'] },
+        en: { kicker: 'Special Release', name: '百年之旅 — Century Journey', sub: 'Swing-top, hand-etched',
+              desc: 'A swing-top bottle with hand-etched artwork, unveiled at the ADBC 2020 Asia beer festival. A century of journey in every sip.',
+              specs: ['330ml', 'Swing-top', 'ADBC 2020'] }
+      },
+      {
+        img: 'bia-2025', pos: [85, 40], h: 33, dur: 6.9, delay: -3.3, turn: 13, shine: 5.8,
+        vi: { kicker: 'Bản Giới Hạn', name: 'Special Edition 2025', sub: 'Họa tiết rắn và mây cổ điển',
+              desc: 'Bản giới hạn mùa 2025 với họa tiết rắn bạc và mây non cổ điển trên nền trắng. Chỉ có trong một mùa, số lượng có hạn.',
+              specs: ['500ml', 'Limited', '2025'] },
+        en: { kicker: 'Limited Edition', name: 'Special Edition 2025', sub: 'Serpent & cloud motifs',
+              desc: 'The 2025 limited edition, adorned with a silver serpent and traditional cloud motifs on white. Available for one season only.',
+              specs: ['500ml', 'Limited', '2025'] }
+      },
+      {
+        img: 'bia-1903', pos: [88, 70], h: 25, dur: 9.4, delay: -4.6, turn: 19, shine: 9.0,
+        vi: { kicker: 'Kỷ Niệm 1903', name: '1903 Premium Lager', sub: 'Lon vàng huy hiệu sư tử',
+              desc: 'Lon kỷ niệm màu vàng in huy hiệu sư tử và vòng lau. Vị đậm đà hơn, bọt sánh vàng và hương hoa hồng tươi nổi bật.',
+              specs: ['500ml', 'Premium', 'Est. 1903'] },
+        en: { kicker: 'Commemorative', name: '1903 Premium Lager', sub: 'Gold can, lion crest',
+              desc: 'The commemorative gold can with its lion crest and barley ring. A fuller body, creamy head and pronounced fresh-hop aroma.',
+              specs: ['500ml', 'Premium', 'Est. 1903'] }
+      },
+      {
+        img: 'bia-0do', pos: [14, 76], h: 24, dur: 7.9, delay: -1.2, turn: 15, shine: 7.2,
+        vi: { kicker: 'Không Cồn', name: 'Zero Alcohol Lager 0.0%', sub: 'Vị lager nguyên bản, 0.0% cồn',
+              desc: '0.0% độ cồn nhưng vẫn giữ trọn đặc trưng lager của Tsingtao. Dành cho người lái xe, vận động viên và mọi cuộc gặp ban ngày.',
+              specs: ['330ml', '0.0% ABV', 'Lager'] },
+        en: { kicker: 'Zero Alcohol', name: 'Zero Alcohol Lager 0.0%', sub: 'Full lager character, no alcohol',
+              desc: 'Zero alcohol, yet all the Tsingtao lager character intact. Made for drivers, athletes and every daytime gathering.',
+              specs: ['330ml', '0.0% ABV', 'Lager'] }
+      },
+      {
+        img: 'bia-0do-chai', pos: [58, 26], h: 28, dur: 8.3, delay: -5.2, turn: 16, shine: 7.7,
+        vi: { kicker: 'Không Cồn', name: 'Zero Alcohol Chai', sub: 'Dạng chai của dòng không cồn',
+              desc: 'Dạng chai của dòng không cồn, giữ trọn hương vị Tsingtao trong thân chai quen thuộc. Không cồn nhưng vẫn thỏa thích.',
+              specs: ['330ml', '0.0% ABV', 'Bottle'] },
+        en: { kicker: 'Zero Alcohol', name: 'Zero Alcohol Bottle', sub: 'Bottle format of the 0.0% range',
+              desc: 'The bottle format of our zero-alcohol range. All the Tsingtao character in the familiar bottle — no alcohol, full refreshment.',
+              specs: ['330ml', '0.0% ABV', 'Bottle'] }
+      },
+      {
+        img: 'bia-lemon-0do', pos: [13, 30], h: 24, dur: 6.5, delay: -2.7, turn: 12, shine: 5.5,
+        vi: { kicker: 'Pilsner Không Cồn', name: 'Lemon Pilsner 0.0%', sub: 'Pha chanh tươi, 60 kcal/100ml',
+              desc: 'Pilsner không cồn pha chanh tươi, chỉ 60 kcal mỗi 100ml. Vị chua nhẹ sáng khoái, giải khát tuyệt vời trong ngày nóng.',
+              specs: ['330ml', '0.0% ABV', '60 kcal'] },
+        en: { kicker: 'Pilsner Zero', name: 'Lemon Pilsner 0.0%', sub: 'Fresh lemon, 60 kcal/100ml',
+              desc: 'Zero-alcohol pilsner blended with fresh lemon, just 60 kcal per 100ml. Light, zesty and made for hot days.',
+              specs: ['330ml', '0.0% ABV', '60 kcal'] }
+      },
+      {
+        img: 'bia-soda-seaweed', pos: [66, 84], h: 27, dur: 9.0, delay: -3.8, turn: 18, shine: 8.6,
+        vi: { kicker: 'Nước Giải Khát', name: 'SODA Rong Biển', sub: 'Không đường, 320ml',
+              desc: 'Nước soda rong biển không đường, mang vị khoáng tự nhiên từ biển. Nhẹ nhàng, không gas, giải khát suốt ngày.',
+              specs: ['320ml', '0 kcal', 'Sugar-free'] },
+        en: { kicker: 'Soft Drink', name: 'Seaweed SODA', sub: 'Sugar-free, 320ml',
+              desc: 'Sugar-free seaweed soda water carrying the natural mineral character of the sea. Light, gentle refreshment for any hour.',
+              specs: ['320ml', '0 kcal', 'Sugar-free'] }
+      },
+      {
+        img: 'bia-export', pos: [54, 58], h: 27, dur: 8.1, delay: -1.7, turn: 15.5, shine: 6.9,
+        vi: { kicker: 'Bản Xuất Khẩu', name: 'Export "From China to the World"', sub: 'Dòng chữ trên thân chai',
+              desc: 'Chai xuất khẩu với dòng chữ "From China to the World" nổi bật. Được thiết kế riêng cho thị trường quốc tế, nắp đỏ và nhãn xanh đậm.',
+              specs: ['640ml', 'Export', '4.8% ABV'] },
+        en: { kicker: 'Export Edition', name: 'Export "From China to the World"', sub: 'Lettering across the bottle',
+              desc: 'The export bottle marked "From China to the World". Designed specifically for international markets, with its red cap and deep green label.',
+              specs: ['640ml', 'Export', '4.8% ABV'] }
+      }
+    ];
+
+    /* ================= BẢN DỊCH GIAO DIỆN ================= */
+    var I18N = {
+      vi: {
+        htmlLang: 'vi',
+        title: 'Tsingtao Vietnam',
+        meta: 'Bia nấu theo công thức Tsingtao truyền thống, chọn lọc hoa hồng và thị trấu tinh khoét. Tươi mát tự nhiên, trong vắt, dịu nhẹ trong mỗi ngụm.',
+        switcherLabel: 'Chọn ngôn ngữ',
+        nav1: 'Bia', nav2: 'Bia Không Cồn', nav3: 'Về Chúng Tôi', nav4: 'Điểm Bán Lẻ',
+        order: 'Đặt Hàng',
+        label: 'Nhà máy bia Tsingtao · Thành lập 1903 · Thanh Đảo',
+        lines: ['Từ Thanh Đảo,', 'đến bàn của bạn,', 'chuẩn vị từ 1903.'],
+        sub: 'Bia nấu theo công thức Tsingtao truyền thống, chọn lọc hoa hồng và thị trấu tinh khoét. Tươi mát tự nhiên, trong vắt, dịu nhẹ trong mỗi ngụm.',
+        proof: 'Được phục vụ tại hơn 60 quốc gia',
+        cta1: 'Mua Bia Premium', cta2: 'Bia Không Cồn 0.0%',
+        modalCta: 'Đặt Hàng', modalNext: 'Sản phẩm khác',
+        closeLabel: 'Đóng', hint: 'Bấm vào bất kỳ sản phẩm nào để xem chi tiết',
+        hintTop: 'Bấm vào sản phẩm để xem chi tiết'
+      },
+      en: {
+        htmlLang: 'en',
+        title: 'Tsingtao — From Qingdao, Authentic Since 1903',
+        meta: 'Brewed to the original Tsingtao recipe using the finest hops and barley. Naturally refreshing, crystal clear, and delightfully smooth in every sip.',
+        switcherLabel: 'Choose language',
+        nav1: 'Beers', nav2: 'Zero Alcohol', nav3: 'Our Story', nav4: 'Stockists',
+        order: 'Order Now',
+        label: 'Tsingtao Brewery · Est. 1903 · Qingdao',
+        lines: ['From Qingdao,', 'to your table,', 'authentic since 1903.'],
+        sub: 'Brewed to the original Tsingtao recipe using the finest hops and barley. Naturally refreshing, crystal clear, and delightfully smooth in every sip.',
+        proof: 'Served in 60+ countries',
+        cta1: 'Shop Premium Lager', cta2: 'Zero Alcohol 0.0%',
+        modalCta: 'Order Now', modalNext: 'Next product',
+        closeLabel: 'Close', hint: 'Tap any product to see its details',
+        hintTop: 'Tap a product to explore'
+      }
+    };
+
+    var DEFAULT_LANG = 'vi';
+    var WORD_DELAY = 120, BASE_DELAY = 260;
+    var lang = DEFAULT_LANG;
+    var current = -1;
+    var lastFocus = null;
+
+    var heading = document.querySelector('h1');
+    var lineEls = Array.prototype.slice.call(heading.querySelectorAll('[data-line]'));
+    var productsEl = document.getElementById('products');
+    var modal = document.getElementById('modal');
+    var t = I18N[lang];
+
+    /* ---------- Tạo nút sản phẩm ---------- */
+    function buildProducts() {
+      productsEl.innerHTML = '';
+      PRODUCTS.forEach(function (p, i) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'product-btn';
+        btn.dataset.index = String(i);
+        btn.style.left = p.pos[0] + '%';
+        btn.style.top = p.pos[1] + '%';
+        btn.style.setProperty('--h', p.h + '%');
+        btn.style.setProperty('--dur', p.dur + 's');
+        btn.style.setProperty('--delay', p.delay + 's');
+        // nhịp xoay 3D và nhịp loé ánh sáng
+        btn.style.setProperty('--turn', (p.turn || 15) + 's');
+        btn.style.setProperty('--shine', (p.shine || 7) + 's');
+        btn.setAttribute('aria-haspopup', 'dialog');
+
+        var src = 'products/cutout/webp/' + p.img + '.webp';
+        // mask dùng chính ảnh sản phẩm để lớp ánh sáng bám đúng hình chai
+        btn.style.setProperty('--mask', 'url("' + src + '")');
+
+        // lớp 3D
+        var p3d = document.createElement('span');
+        p3d.className = 'p3d';
+
+        var img = document.createElement('img');
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        img.src = src;
+        img.alt = p[lang].name;
+
+        // lấy tỉ lệ gốc của ảnh để khung ôm sát sản phẩm
+        var setRatio = function () {
+          if (img.naturalHeight > 0) {
+            btn.style.setProperty('--ar', (img.naturalWidth / img.naturalHeight).toFixed(4));
+          }
+        };
+        if (img.complete && img.naturalWidth > 0) setRatio();
+        else img.addEventListener('load', setRatio);
+
+        p3d.appendChild(img);
+
+        var shade = document.createElement('span');
+        shade.className = 'shade';
+        p3d.appendChild(shade);
+
+        var shine = document.createElement('span');
+        shine.className = 'shine';
+        p3d.appendChild(shine);
+
+        btn.appendChild(p3d);
+
+        var tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.textContent = p[lang].name;
+        btn.appendChild(tag);
+
+        btn.addEventListener('click', function () { openModal(i, btn); });
+        productsEl.appendChild(btn);
+      });
+    }
+
+    /* ---------- Tiêu đề từng từ ---------- */
+    function renderHeadline() {
+      lineEls.forEach(function (el) { el.innerHTML = ''; });
+      t.lines.forEach(function (line, i) {
+        var el = lineEls[i];
+        if (!el) return;
+        line.split(' ').forEach(function (word) {
+          if (!word) return;
+          var s = document.createElement('span');
+          s.className = 'word';
+          s.textContent = word;
+          el.appendChild(s);
+          el.appendChild(document.createTextNode(' '));
+        });
+      });
+    }
+
+    function playReveal(first) {
+      var words = Array.prototype.slice.call(document.querySelectorAll('.word'));
+      var chrome = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+      words.forEach(function (w) { w.classList.remove('is-visible'); w.style.transitionDelay = '0ms'; });
+      chrome.forEach(function (el) { el.classList.remove('is-visible'); el.style.transitionDelay = '0ms'; });
+
+      var base = first ? BASE_DELAY : 60;
+      var step = first ? WORD_DELAY : 60;
+      words.forEach(function (w, i) { w.style.transitionDelay = (base + i * step) + 'ms'; });
+      var chromeBase = base + words.length * step + (first ? 160 : 90);
+      chrome.forEach(function (el, i) {
+        el.style.transitionDelay = (chromeBase + i * (first ? 110 : 60)) + 'ms';
+      });
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          words.forEach(function (w) { w.classList.add('is-visible'); });
+          chrome.forEach(function (el) { el.classList.add('is-visible'); });
+        });
+      });
+    }
+
+    /* ---------- Dịch phần giao diện ---------- */
+    function translate(l) {
+      var tt = I18N[l];
+      document.documentElement.lang = tt.htmlLang;
+      document.title = tt.title;
+      var meta = document.querySelector('meta[name="description"]');
+      if (meta) meta.setAttribute('content', tt.meta);
+
+      document.querySelectorAll('[data-i18n]').forEach(function (el) {
+        var k = el.getAttribute('data-i18n');
+        if (tt[k] != null) el.textContent = tt[k];
+      });
+      document.querySelectorAll('[data-i18n-attr]').forEach(function (el) {
+        el.getAttribute('data-i18n-attr').split(',').forEach(function (pair) {
+          var p = pair.split(':');
+          if (p.length === 2 && tt[p[1]] != null) el.setAttribute(p[0], tt[p[1]]);
+        });
+      });
+      document.querySelectorAll('.lang-btn').forEach(function (b) {
+        b.setAttribute('aria-pressed', String(b.dataset.lang === l));
+      });
+      return tt;
+    }
+
+    /* ---------- Popup chi tiết ---------- */
+    function fillModal(i) {
+      var p = PRODUCTS[i][lang];
+      document.getElementById('modalKicker').textContent = p.kicker;
+      document.getElementById('modalTitle').textContent = p.name;
+      document.getElementById('modalSub').textContent = p.sub;
+      document.getElementById('modalDesc').textContent = p.desc;
+      document.getElementById('modalClose').setAttribute('aria-label', t.closeLabel);
+
+      var img = document.getElementById('modalImg');
+      img.src = 'products/cutout/webp/' + PRODUCTS[i].img + '.webp';
+      img.alt = p.name;
+
+      var specs = document.getElementById('modalSpecs');
+      specs.innerHTML = '';
+      p.specs.forEach(function (s) {
+        var li = document.createElement('li');
+        li.className = 'rounded-full border border-white/16 bg-white/6 px-3 py-1.5 text-[12px] font-normal text-white/80';
+        li.textContent = s;
+        specs.appendChild(li);
+      });
+    }
+
+    function openModal(i, trigger) {
+      current = i;
+      lastFocus = trigger || document.activeElement;
+      fillModal(i);
+      modal.hidden = false;
+      // ép trình duyệt vẽ lại để chạy được transition
+      void modal.offsetWidth;
+      modal.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('modalClose').focus();
+    }
+
+    function closeModal() {
+      if (modal.hidden) return;
+      modal.classList.remove('is-open');
+      document.body.style.overflow = '';
+      window.setTimeout(function () { modal.hidden = true; }, 260);
+      if (lastFocus) lastFocus.focus();
+      current = -1;
+    }
+
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    document.getElementById('modalNext').addEventListener('click', function () {
+      openModal((current + 1) % PRODUCTS.length, null);
+    });
+    modal.addEventListener('mousedown', function (e) {
+      if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (modal.hidden) return;
+      if (e.key === 'Escape') closeModal();
+      else if (e.key === 'ArrowRight') openModal((current + 1) % PRODUCTS.length, null);
+      else if (e.key === 'ArrowLeft') openModal((current - 1 + PRODUCTS.length) % PRODUCTS.length, null);
+      // giữ focus bên trong popup
+      if (e.key === 'Tab') {
+        var f = modal.querySelectorAll('button, a[href]');
+        if (!f.length) return;
+        var first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    });
+
+    /* ---------- Chuyển ngôn ngữ ---------- */
+    function setLang(l) {
+      lang = I18N[l] ? l : DEFAULT_LANG;
+      t = translate(lang);
+      document.querySelectorAll('.product-btn').forEach(function (btn, i) {
+        btn.querySelector('img').alt = PRODUCTS[i][lang].name;
+        btn.querySelector('.tag').textContent = PRODUCTS[i][lang].name;
+      });      if (!modal.hidden) fillModal(current);
+      renderHeadline();
+      playReveal(false);
+      try { localStorage.setItem('tsingtao-lang', lang); } catch (e) {}
+    }
+
+    document.getElementById('langSwitch').addEventListener('click', function (e) {
+      var btn = e.target.closest('.lang-btn');
+      if (!btn || btn.getAttribute('aria-pressed') === 'true') return;
+      setLang(btn.dataset.lang);
+    });
+
+    function initialLang() {
+      var q = new URLSearchParams(window.location.search).get('lang');
+      if (q && I18N[q]) return q;
+      try {
+        var s = localStorage.getItem('tsingtao-lang');
+        if (s && I18N[s]) return s;
+      } catch (e) {}
+      return DEFAULT_LANG;
+    }
+
+    function init() {
+      t = translate(initialLang());
+      buildProducts();
+      renderHeadline();
+      playReveal(true);
+
+      var v = document.querySelector('.hero-video');
+      if (v) { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else { init(); }
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# He thong
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Nhat ky
+*.log
+
+# File tam / thu vien dien giai
+node_modules/
+.venv/
