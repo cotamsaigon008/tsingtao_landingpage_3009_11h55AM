@@ -7,7 +7,7 @@ Hỗ trợ song ngữ **Tiếng Việt / English**.
 ## Cấu trúc dự án
 
 ```
-tsingtao-vietnam/
+Tsingtao_LandingPage_02/
 ├── index.html                      ← toàn bộ giao diện (1 file, không phụ thuộc thư viện)
 ├── assets/
 │   ├── hero-aquarium-1080p.mp4     ← video nền, màn hình lớn (1.94 MB)
@@ -89,7 +89,7 @@ python tools/optimize.py
 ## Đẩy lên GitHub
 
 ```bash
-cd D:\AI_PROJECTS\tsingtao-vietnam
+cd D:\AI_PROJECTS\Tsingtao_LandingPage_02
 git init
 git branch -M main
 git remote add origin <URL-repo>
